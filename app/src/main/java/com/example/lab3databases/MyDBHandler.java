@@ -21,7 +21,7 @@ public class MyDBHandler extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         String create_table_cmd = "CREATE TABLE " + TABLE_NAME +
-                "(" + COLUMN_ID + "INTEGER PRIMARY KEY, " +
+                "(" + COLUMN_ID + " INTEGER PRIMARY KEY, " +
                 COLUMN_PRODUCT_NAME + " TEXT, " +
                 COLUMN_PRODUCT_PRICE + " DOUBLE " + ")";
 
@@ -51,4 +51,41 @@ public class MyDBHandler extends SQLiteOpenHelper {
         db.insert(TABLE_NAME, null, values);
         db.close();
     }
+
+    public Product findProduct(String productName){
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "SELECT * FROM " + TABLE_NAME + " WHERE " + COLUMN_PRODUCT_NAME + "=\"" + productName + "\"";
+        Cursor cursor = db.rawQuery(query, null );
+
+        Product product = new Product();
+        if(cursor.moveToFirst()){
+            product.setId(Integer.parseInt(cursor.getString(0)));
+            product.setProductName(cursor.getString(1));
+            product.setProductPrice(Double.parseDouble(cursor.getString(2)));
+            cursor.close();
+        }
+        else{
+            product = null;
+        }
+        db.close();
+        return product;
+    }
+
+    public boolean deleteProduct(String productName){
+        boolean result = false;
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String query = "SELECT * FROM " + TABLE_NAME + " WHERE " + COLUMN_PRODUCT_NAME + "=\"" + productName + "\"";
+        Cursor cursor = db.rawQuery(query, null );
+        if(cursor.moveToFirst()){
+            String idStr = cursor.getString(0);
+            db.delete(TABLE_NAME, COLUMN_ID + "=" + idStr, null);
+            cursor.close();
+            result = true;
+        }
+        return result;
+    }
+
+
 }

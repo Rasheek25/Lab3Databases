@@ -67,14 +67,37 @@ public class MainActivity extends AppCompatActivity {
         findBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "Find product", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MainActivity.this, "Find product", Toast.LENGTH_SHORT).show();
+
+                Product product = dbHandler.findProduct(productName.getText().toString());
+
+                if(product != null){
+                    productId.setText(String.valueOf(product.getId()));
+                    productPrice.setText(String.valueOf(product.getProductPrice()));
+                }
+                else{
+                    productId.setText("No Match Found");
+                }
+                FindViewProducts();
+
             }
         });
 
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "Delete product", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MainActivity.this, "Delete product", Toast.LENGTH_SHORT).show();
+                boolean result = dbHandler.deleteProduct(productName.getText().toString());
+
+                if(result){
+                    productId.setText("Record Deleted");
+                    productName.setText("");
+                    productPrice.setText("");
+                }
+                else{
+                    productId.setText("No Match Found");
+                }
+                viewProducts();
             }
         });
 
@@ -96,4 +119,50 @@ public class MainActivity extends AppCompatActivity {
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, productList);
         productListView.setAdapter(adapter);
     }
+
+    //viewProducts method specific to find button
+    private void FindViewProducts() {
+        productList.clear();
+        Cursor cursor = dbHandler.getData();
+        if (cursor.getCount() == 0) {
+            Toast.makeText(MainActivity.this, "Nothing to show", Toast.LENGTH_SHORT).show();
+        } else {
+            if( productPrice.getText().equals("")){
+                while (cursor.moveToNext()) {
+                    if(cursor.getString(1).equals(productName.getText())) {
+                        productList.add(cursor.getString(1) + " (" + cursor.getString(2) + ")");
+                    }
+                    else{
+                        continue;
+                    }
+                }
+            }
+            if( productName.getText().equals("")){
+                while (cursor.moveToNext()) {
+                    if(cursor.getString(2).equals(productPrice.getText())) {
+                        productList.add(cursor.getString(1) + " (" + cursor.getString(2) + ")");
+                    }
+                    else{
+                        continue;
+                    }
+                }
+            }
+            else{
+                while (cursor.moveToNext()) {
+                    if(cursor.getString(2).equals(productPrice.getText()) && cursor.getString(1).equals(productName.getText())) {
+                        productList.add(cursor.getString(1) + " (" + cursor.getString(2) + ")");
+                    }
+                    else{
+                        continue;
+                    }
+                }
+            }
+
+
+        }
+
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, productList);
+        productListView.setAdapter(adapter);
+    }
+
 }
