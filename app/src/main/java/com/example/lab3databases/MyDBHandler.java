@@ -78,6 +78,50 @@ public class MyDBHandler extends SQLiteOpenHelper {
         return product;
     }
 
+    public Product findProduct(Double productPrice) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String query = "SELECT * FROM " + TABLE_NAME + " WHERE " + COLUMN_PRODUCT_PRICE + "=\"" + productPrice + "\"";
+        Cursor cursor = db.rawQuery(query, null);
+
+        Product product = new Product();
+        if (cursor.moveToFirst()) {
+            //product.setId(Integer.parseInt(cursor.getString(0)));
+            product.setProductName(cursor.getString(1));
+            product.setProductPrice(Double.parseDouble(cursor.getString(2)));
+            cursor.close();
+        }
+
+        else {
+            product = null;
+        }
+
+        db.close();
+        return product;
+    }
+
+    /*public Product findProduct(String productName, Double productPrice) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String query = "SELECT * FROM " + TABLE_NAME + " WHERE " + COLUMN_PRODUCT_NAME + "=\"" + productName + " AND " + COLUMN_PRODUCT_PRICE + "=\"" + productPrice + "\"";
+        Cursor cursor = db.rawQuery(query, null);
+
+        Product product = new Product();
+        if (cursor.moveToFirst()) {
+            //product.setId(Integer.parseInt(cursor.getString(0)));
+            product.setProductName(cursor.getString(1));
+            product.setProductPrice(Double.parseDouble(cursor.getString(2)));
+            cursor.close();
+        }
+
+        else {
+            product = null;
+        }
+
+        db.close();
+        return product;
+    }*/
+
     public boolean deleteProduct(String productName) {
         boolean result = false;
         SQLiteDatabase db = this.getWritableDatabase();

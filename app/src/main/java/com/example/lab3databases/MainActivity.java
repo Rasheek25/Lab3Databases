@@ -68,8 +68,20 @@ public class MainActivity extends AppCompatActivity {
         findBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Product product = dbHandler.findProduct(productName.getText().toString());
+                Product product;
+                if (productPrice.getText().toString().equals("")) {
+                    product = dbHandler.findProduct(productName.getText().toString());
+                    FindViewProducts3(product);
+                }
+                else if (productName.getText().toString().equals("")) {
+                    product = dbHandler.findProduct(Double.parseDouble(productPrice.getText().toString()));
+                    FindViewProducts2(product);
+                }
 
+                else {
+                     product = dbHandler.findProduct(productName.getText().toString());
+                    FindViewProducts1(product);
+                }
                 if (product != null) {
 
                     productPrice.setText(String.valueOf(product.getProductPrice()));
@@ -78,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
                     productId.setText("No Match Found");
                 }
 
-                FindViewProducts(product);
+
 
                 //  Toast.makeText(MainActivity.this, "Find product", Toast.LENGTH_SHORT).show();
             }
@@ -163,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
         productListView.setAdapter(adapter);
     }
 
-    private void FindViewProducts(Product product) {
+    private void FindViewProducts1(Product product) {
         productList.clear();
         Cursor cursor = dbHandler.getData();
         if (cursor.getCount() == 0) {
@@ -177,6 +189,52 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+
+
+
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, productList);
+        productListView.setAdapter(adapter);
+
+    }
+
+    private void FindViewProducts2(Product product) {
+        productList.clear();
+        Cursor cursor = dbHandler.getData();
+        if (cursor.getCount() == 0) {
+            Toast.makeText(MainActivity.this, "Nothing to show", Toast.LENGTH_SHORT).show();
+        }
+
+        else {
+            while (cursor.moveToNext()) {
+                if (product.getProductPrice() == Double.parseDouble(cursor.getString(2))) {
+                    productList.add(cursor.getString(0) + ' ' + cursor.getString(1) + ' ' + cursor.getString(2));
+                }
+            }
+        }
+
+
+
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, productList);
+        productListView.setAdapter(adapter);
+
+    }
+
+    private void FindViewProducts3(Product product) {
+        productList.clear();
+        Cursor cursor = dbHandler.getData();
+        if (cursor.getCount() == 0) {
+            Toast.makeText(MainActivity.this, "Nothing to show", Toast.LENGTH_SHORT).show();
+        }
+
+        else {
+            while (cursor.moveToNext()) {
+                if (product.getProductName().equals(cursor.getString(1))) {
+                    productList.add(cursor.getString(0) + ' ' + cursor.getString(1) + ' ' + cursor.getString(2));
+                }
+            }
+        }
+
+
 
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, productList);
         productListView.setAdapter(adapter);
