@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
                 double price = Double.parseDouble(productPrice.getText().toString());
                 Product product = new Product(name, price);
                 dbHandler.addProduct(product);
+                productId.setText(String.valueOf(product.getId()));
 
                 productName.setText("");
                 productPrice.setText("");
@@ -67,20 +68,84 @@ public class MainActivity extends AppCompatActivity {
         findBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "Find product", Toast.LENGTH_SHORT).show();
+                Product product = dbHandler.findProduct(productName.getText().toString());
+
+                if (product != null) {
+
+                    productPrice.setText(String.valueOf(product.getProductPrice()));
+
+                } else {
+                    productId.setText("No Match Found");
+                }
+
+                FindViewProducts(product);
+
+                //  Toast.makeText(MainActivity.this, "Find product", Toast.LENGTH_SHORT).show();
             }
+
         });
 
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "Delete product", Toast.LENGTH_SHORT).show();
+                boolean result = dbHandler.deleteProduct(productName.getText().toString());
+                if (result) {
+                    productId.setText("Record deleted");
+                    productName.setText("");
+                    productPrice.setText("");
+                }
+                else {
+                    productId.setText("No Match Found");
+                }
+                viewProducts();
+                //Toast.makeText(MainActivity.this, "Delete product", Toast.LENGTH_SHORT).show();
             }
         });
 
 
         viewProducts();
     }
+
+    /*public void newProduct (View v) {
+        MyDBHandler dbHandler = new MyDBHandler(this);
+
+        double price = Double.parseDouble(productPrice.getText().toString());
+        Product product = new Product(productName.getText().toString(), price);
+        dbHandler.addProduct(product);
+
+        productName.setText("");
+        productPrice.setText("");
+
+        viewProducts();
+
+    }*/
+
+    /*public void lookupProduct(View view) {
+        MyDBHandler dbHandler = new MyDBHandler(this);
+
+        Product product = dbHandler.findProduct(productName.getText().toString());
+
+        if (product != null) {
+            productId.setText(String.valueOf(product.getId()));
+            productPrice.setText(String.valueOf(product.getProductPrice()));
+
+        } else {
+            productId.setText("No Match Found");
+        }
+    }*/
+
+    /*public void removeProduct(View view) {
+        MyDBHandler dbHandler = new MyDBHandler(this);
+        boolean result = dbHandler.deleteProduct(productName.getText().toString());
+        if (result) {
+            productId.setText("Record Deleted");
+            productName.setText("");
+            productPrice.setText("");
+        }
+        else {
+            productId.setText("No Match Found");
+        }
+    }*/
 
     private void viewProducts() {
         productList.clear();
@@ -89,11 +154,36 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(MainActivity.this, "Nothing to show", Toast.LENGTH_SHORT).show();
         } else {
             while (cursor.moveToNext()) {
-                productList.add(cursor.getString(1) + " (" +cursor.getString(2)+")");
+                productList.add(cursor.getString(0) + ' ' + cursor.getString(1) + ' ' + cursor.getString(2));
+
             }
         }
 
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, productList);
         productListView.setAdapter(adapter);
     }
+
+    private void FindViewProducts(Product product) {
+        productList.clear();
+        Cursor cursor = dbHandler.getData();
+        if (cursor.getCount() == 0) {
+            Toast.makeText(MainActivity.this, "Nothing to show", Toast.LENGTH_SHORT).show();
+        }
+
+        else {
+            while (cursor.moveToNext()) {
+                if (product.getProductName().equals(cursor.getString(1)) && product.getProductPrice() == Double.parseDouble(cursor.getString(2))) {
+                    productList.add(cursor.getString(0) + ' ' + cursor.getString(1) + ' ' + cursor.getString(2));
+                }
+            }
+        }
+
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, productList);
+        productListView.setAdapter(adapter);
+
+    }
+
+
+
+
 }
